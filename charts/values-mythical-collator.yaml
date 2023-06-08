@@ -1,0 +1,46 @@
+image:
+  repository: ddorgan/erc20-test
+  tag: 0942
+
+extraLabels:
+  paraId: "2058"
+  ss58Format: "19"
+
+node:
+  legacyRpcFlags: true
+  chainData:
+    pruning: 1000
+    volumeSize: 5Gi
+    storageClass: "premium-rwo"
+  chainKeystore:
+    mountInMemory:
+      enabled: true
+  chain: versi-mythical
+  role: collator
+  replicas: 1
+  command: /usr/bin/mythical-node
+  customChainspecUrl: "http://chainspec.rococo/mythical.json"
+  forceDownloadChainspec: true
+  isParachain: true
+  collatorRelayChain:
+    customChainspecUrl: "http://chainspec.rococo/rococo-local.json"
+    chainData:
+      pruning: 1000
+      storageClass: "premium-rwo"
+      volumeSize: 20Gi
+    chainKeystore:
+      mountInMemory:
+        enabled: true
+    flags:
+      - "--allow-private-ipv4"
+      - "--discover-local"
+    prometheus:
+      enabled: true
+  podManagementPolicy: Parallel
+  flags:
+    - "--state-cache-size=0"
+    - "--db-cache=128"
+    - "--max-runtime-instances=32"
+
+  # required to allow the testnet-manager to rotate keys
+  allowUnsafeRpcMethods: true

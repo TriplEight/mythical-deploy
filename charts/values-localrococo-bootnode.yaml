@@ -1,0 +1,39 @@
+image:
+  # also update version in manifests/chainspec.yml
+  repository: parity/polkadot
+  tag: v0.9.42
+  #reposity: paritytech/polkadot
+  #tag: v0.9.41
+  pullPolicy: Always
+
+initContainer:
+  debug: true
+
+node:
+  chain: rococo-local
+  role: authority
+  replicas: 1
+  chainData:
+    pruning: 0
+    volumeSize: 30Gi
+    storageClass: "premium-rwo"
+  chainKeystore:
+    mountInMemory:
+      enabled: true
+      sizeLimit: 10Mi
+  podManagementPolicy: Parallel
+  # kube-setup/chainspec.yml
+  flags:
+    - "--allow-private-ipv4"
+  customChainspecUrl: http://chainspec.rococo/rococo-local.json
+  #customChainspecUrl: https://gist.github.com/ddorgan/581088a1832cc93ed607b0dd3f345400/raw/9111127fe17f83d23d37650a65ec7fb7119e0d48/polkadot-rococolocal-raw.json
+  legacyRpcFlags: true
+  allowUnsafeRpcMethods: true
+  forceDownloadChainspec: true
+extraInitContainers:
+  - name: dump-session-keys
+    image: docker.io/paritytech/substrate-session-keys-grabber:d17032f1-20221202
+    args: ["/keystore"]
+    volumeMounts:
+      - mountPath: /keystore
+        name: chain-keystore

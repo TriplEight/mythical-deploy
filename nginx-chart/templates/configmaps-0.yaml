@@ -1,0 +1,78 @@
+apiVersion: v1
+data:
+  nginx-passwd: |
+    tellor:$apr1$YZHcwZK/$rm35fmfybgGnhXfT0dSsQ0
+  auth: |
+    tellor:$apr1$YZHcwZK/$rm35fmfybgGnhXfT0dSsQ0
+  index.html: |
+    404
+  nginx.conf: |
+    user nginx;
+    worker_processes  10;
+    error_log /dev/stdout info;
+
+    events {
+      worker_connections 10000;
+    }
+
+    http {
+      sendfile on;
+      tcp_nopush on;
+      tcp_nodelay on;
+      types_hash_max_size 2048;
+      server_tokens off;
+
+      server_names_hash_bucket_size 64;
+      server_name_in_redirect off;
+
+      server {
+        listen       80;
+        server_name  _;
+        location / {
+          root   /var/www/html;
+          index  index.html index.htm;
+          #auth_basic_user_file /etc/nginx-passwd/passwd;
+          #auth_basic          "ADMIN Login";
+        }
+
+        location /myth/relay/ {
+          proxy_pass http://localrococo-bootnode-0:9944;
+          proxy_buffers 16 4k;
+          proxy_buffer_size 2k;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        location /myth/para/ws/ {
+          proxy_pass http://rococo-mythical-rpc-node-0:9944;
+          proxy_buffers 16 4k;
+          proxy_buffer_size 2k;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+        location /myth/para/rpc/ {
+          proxy_pass http://rococo-mythical-rpc-node-0:9933;
+          proxy_buffers 16 4k;
+          proxy_buffer_size 2k;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $http_upgrade;
+          proxy_set_header Connection "Upgrade";
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        }
+      }
+    }
+kind: ConfigMap
+metadata:
+  name: nginx

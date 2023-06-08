@@ -1,0 +1,69 @@
+## nginx which hosts `polkadot build-spec` command output
+apiVersion: v1
+kind: Service
+metadata:
+  name: chainspec
+  labels:
+    run: chainspec
+  namespace: rococo
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    run: chainspec
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chainspec
+  namespace: rococo
+spec:
+  selector:
+    matchLabels:
+      run: chainspec
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: chainspec
+    spec:
+      volumes:
+      - name: dir
+        emptyDir: {}
+      containers:
+      - name: chainspec
+        image: nginx:stable
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: dir
+          mountPath: /usr/share/nginx/html
+      initContainers:
+      - name: create-chainspec-rococolocal
+        image: parity/polkadot:v0.9.42
+        imagePullPolicy: IfNotPresent
+        command: [ "/bin/sh" ]
+        args:
+          - -c
+          - polkadot build-spec --chain rococo-local --disable-default-bootnode --raw  > /dir/rococo-local.json
+        volumeMounts:
+        - name: dir
+          mountPath: /dir
+      - name: create-chainspec-mythical
+        image: ddorgan/erc20-test:6fb81025bc0
+        imagePullPolicy: Always
+        command: [ "/bin/sh" ]
+        args:
+          - -c
+          - >
+            set -xe;
+            mythical-node build-spec --chain mainnet-local  --disable-default-bootnode > /dir/mythical-plain.json;
+            sed 's/"para_id": 2058/"para_id": 1000/' -i /dir/mythical-plain.json;
+            sed 's/"relay_chain": "polkadot-local"/"relay_chain": "rococo_local_testnet"/' -i /dir/mythical-plain.json;
+            sed 's/"parachainId": 2058/"parachainId": 1000/' -i /dir/mythical-plain.json;
+            mythical-node build-spec --chain /dir/mythical-plain.json --disable-default-bootnode --raw > /dir/mythical.json;
+        volumeMounts:
+          - name: dir
+            mountPath: /dir

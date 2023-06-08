@@ -1,0 +1,27 @@
+image:
+  repository: "paritytech/testnet-manager"
+  tag: latest
+  pullPolicy: IfNotPresent
+
+initContainer:
+  debug: true
+
+secret:
+  # 0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a is  //Alice
+  SUDO_SEED: "0xe5be9a5092b81bca64be81d212e7f2f9eba183bb7a90954f7b76361f6edb5c0a"
+  VALIDATORS_ROOT_SEED: "test test test test test test test test test test test junk"
+
+configmap:
+  LOG_LEVEL: DEBUG
+  WS_ENDPOINT: "ws://localrococo-bootnode-0.rococo:9944"
+  NODE_HTTP_PATTERN: "http://NODE_NAME.rococo:9933"
+  NODE_WS_PATTERN: "ws://NODE_NAME.rococo:9944"
+  HEALTHY_MIN_PEER_COUNT: "1"
+  TASKS_CRON_SCHEDULE: "0 0 30 2 *" # Every February 30th aka never
+  TESTNET_MANAGER_CONSENSUS: "poa"
+
+tolerations: null
+affinity: null
+
+ingress:
+  enabled: false

@@ -1,0 +1,48 @@
+image:
+  # also update version in manifests/chainspec.yml
+  repository: "ddorgan/erc20-test"
+  tag: "6fb81025bc0"
+  pullPolicy: IfNotPresent
+
+initContainer:
+  debug: true
+
+node:
+  chainData: &chainData
+    volumeSize: 2Gi
+    storageClass: "premium-rwo"
+  chainKeystore: &chainKeystore
+    mountInMemory:
+      enabled: true
+      sizeLimit: 10Mi
+  #chain: statemint-local
+  role: rpc
+  replicas: 1
+  pruning: 0
+  command: "/usr/bin/mythical-node"
+  isParachain: true
+  legacyRpcFlags: true
+  allowUnsafeRpcMethods: true
+  # manifests/chainspec.yml
+  forceDownloadChainspec: true
+  customChainspecUrl: "http://chainspec.rococo/mythical.json"
+  flags:
+    - "--allow-private-ipv4"
+    - "--ws-max-connections=50000"
+    - "--discover-local"
+    - "--rpc-max-request-size=2000"
+    - "--rpc-max-response-size=2000"
+    - " --rpc-max-connections=50000"
+  collatorRelayChain:
+    customChainspecUrl: "http://chainspec.rococo/rococo-local.json"
+    forceDownloadChainspec: true
+    chainData: *chainData
+    chainKeystore: *chainKeystore
+    flags:
+      - "--bootnodes  /dns4/localrococo-bootnode-0/tcp/30333/p2p/12D3KooWRrehp4u6ZmqeMPJ75kJD1S8b9aqfQ3qcaU4TWthpYnoL"
+  perNodeServices:
+    apiService:
+      enabled: true
+      type: LoadBalancer
+  extraLabels:
+    paraId: "1000"
