@@ -1,7 +1,7 @@
 image:
   # also update version in manifests/chainspec.yml
   repository: "ddorgan/erc20-test"
-  tag: "6fb81025bc0"
+  tag: "3730538dbbb08e804e96c9e7bac09031e735c3b9"
   pullPolicy: IfNotPresent
 
 initContainer:
