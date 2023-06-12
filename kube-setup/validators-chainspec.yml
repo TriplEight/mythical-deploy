@@ -52,7 +52,7 @@ spec:
         - name: dir
           mountPath: /dir
       - name: create-chainspec-mythical
-        image: ddorgan/erc20-test:6fb81025bc0
+        image: ddorgan/erc20-test:3730538dbbb08e804e96c9e7bac09031e735c3b9
         imagePullPolicy: Always
         command: [ "/bin/sh" ]
         args:
