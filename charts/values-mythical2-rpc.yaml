@@ -9,7 +9,7 @@ initContainer:
 
 node:
   chainData: &chainData
-    volumeSize: 2Gi
+    volumeSize: 20Gi
     storageClass: "premium-rwo"
   chainKeystore: &chainKeystore
     mountInMemory:
