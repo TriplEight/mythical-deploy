@@ -22,12 +22,3 @@ Checkout both repos. For the tellor github repo it uses submodules so run:
 
 Run `./ports.sh` from deployment repo
 
-
-## Deploy Contacts
-
-cd into the tellor/deploy-contracts repo and run `./scripts/deploy`
-
-## Load initial chain state
-
-
-- cd into tellor/parachains-integration-tests ; yarn run -m test -t network-init.yaml --action-delay 0
