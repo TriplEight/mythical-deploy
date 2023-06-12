@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: evm-tps
+  name: evm-tps
+  namespace: rococo
+spec:
+  containers:
+    - name: evm-tps
+      image: ddorgan/evm-tps:dev9
+  restartPolicy: Always
