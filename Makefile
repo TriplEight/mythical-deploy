@@ -96,9 +96,3 @@ uninstall: check
 
 cleanup: check
 	@kubectl --context ${KUBERNETES_CONTEXT} delete namespace ${CHAIN_NAMESPACE}
-
-postinstall: check
-	./postinstall.sh
-
-deploy-contracts: check
-	./deploy-contracts.sh
