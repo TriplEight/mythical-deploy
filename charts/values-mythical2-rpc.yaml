@@ -9,7 +9,7 @@ initContainer:
 
 node:
   chainData: &chainData
-    volumeSize: 2Gi
+    volumeSize: 20Gi
     storageClass: "premium-rwo"
   chainKeystore: &chainKeystore
     mountInMemory:
@@ -28,11 +28,12 @@ node:
   customChainspecUrl: "http://chainspec.rococo/mythical.json"
   flags:
     - "--allow-private-ipv4"
-    - "--ws-max-connections=50000"
+    - "--ws-max-connections=100000"
     - "--discover-local"
-    - "--rpc-max-request-size=2000"
-    - "--rpc-max-response-size=2000"
-    - " --rpc-max-connections=50000"
+    - "--rpc-max-request-size=200"
+    - "--rpc-max-response-size=200"
+    - "--pool-limit 10000000"
+    - "--pool-kbytes 100000000"
   collatorRelayChain:
     customChainspecUrl: "http://chainspec.rococo/rococo-local.json"
     forceDownloadChainspec: true

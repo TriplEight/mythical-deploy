@@ -5,98 +5,7 @@ repositories:
 helmDefaults:
   createNamespace: false
   waitForJobs: true
-
 releases:
-## testnet-manager ##
-  - name: testnet-manager
-    namespace: rococo
-    chart: parity/testnet-manager
-    version: # empty value is latest
-    values:
-      - ./values-testnet-manager.yml
-
-## relay chain Rococo ##
-  - name: localrococo-bootnode
-    namespace: rococo
-    chart: parity/node
-    values:
-      - ./values-localrococo-bootnode.yaml
-      - node:
-          customNodeKey: "2144da0999f6e7bc20fc70973e2f9dbdd4d6b0afe0625903c35bb5b8c97f72dc"
-          flags:
-            - "--alice"
-            - "--ws-max-connections=5000"
-        extraLabels:
-          validatorAccount: "5GNJqTPyNqANBkUVMN1LPPrxXnFouWXoe2wNSmmEoLctxiZY" # Alice address
-  - name: localrococo-bootnode-bob
-    namespace: rococo
-    chart: parity/node
-    values:
-      - ./values-localrococo-bootnode.yaml
-      - node:
-          flags:
-            - "--bob"
-            - "--bootnodes  /dns4/localrococo-bootnode-0/tcp/30333/p2p/12D3KooWRrehp4u6ZmqeMPJ75kJD1S8b9aqfQ3qcaU4TWthpYnoL"
-        extraLabels:
-          validatorAccount: "5HpG9w8EBLe5XCrbczpwq5TSXvedjrBGCwqxK1iQ7qUsSWFc" # Bob address
-
-  - name: localrococo-validator-a
-    namespace: rococo
-    chart: parity/node
-    values:
-      - ./values-localrococo-bootnode.yaml
-      - node:
-          replicas: 2
-          flags:
-            - "--bootnodes  /dns4/localrococo-bootnode-0/tcp/30333/p2p/12D3KooWRrehp4u6ZmqeMPJ75kJD1S8b9aqfQ3qcaU4TWthpYnoL"
-
-  - name: rococo-mythical-collator-alice
-    namespace: rococo
-    chart: parity/node
-    version: 4.7.2
-    values:
-      - values-mythical2.yaml
-      - node:
-          customNodeKey: "5a13153e706c79bb884e7319d5ed9ce6a7e16342350efbd1a331deb578a5f911"
-          flags:
-            - "--alice"
-        extraLabels:
-          validatorAccount: "2ykmykmyFJQsRjxKKcNs8VPfCwv7yCor31xW3fpT9cb7SYuS" # Alice address
- 
-  - name: rococo-mythical-collator-bob
-    namespace: rococo
-    chart: parity/node
-    version: 4.7.2
-    values:
-      - values-mythical2.yaml
-      - node:
-          flags:
-            - "--bob"
-            - "--bootnodes /dns4/rococo-mythical-collator-alice-node-0/tcp/30334/p2p/12D3KooWPHGSf49X8DWgKy5gHvf1YSy2JokYehLhfxA6kbMht2jB"
-  - name: rococo-mythical-collator-charlie
-    namespace: rococo
-    chart: parity/node
-    version: 4.7.2
-    values:
-      - values-mythical2.yaml
-      - node:
-          flags:
-            - "--charlie"
-            - "--bootnodes /dns4/rococo-mythical-collator-alice-node-0/tcp/30334/p2p/12D3KooWPHGSf49X8DWgKy5gHvf1YSy2JokYehLhfxA6kbMht2jB"
- 
-  - name: rococo-mythical-collator-dave
-    namespace: rococo
-    chart: parity/node
-    version: 4.7.2
-    values:
-      - values-mythical2.yaml
-      - node:
-          flags:
-            - "--dave"
-            - "--bootnodes /dns4/rococo-mythical-collator-alice-node-0/tcp/30334/p2p/12D3KooWPHGSf49X8DWgKy5gHvf1YSy2JokYehLhfxA6kbMht2jB"
- 
-
-
   - name: rococo-mythical-rpc
     namespace: rococo
     chart: parity/node
@@ -106,9 +15,5 @@ releases:
       - node:
           flags:
             - "--bootnodes  /dns4/rococo-mythical-collator-alice-node-0/tcp/30334/p2p/12D3KooWPHGSf49X8DWgKy5gHvf1YSy2JokYehLhfxA6kbMht2jB"
-            - "--ws-max-connections=10000"
-            - "--discover-local"
-            - "--rpc-max-request-size=200"
-            - "--rpc-max-response-size=200"
  
 
