@@ -101,6 +101,3 @@ cleanup: check
 
 postinstall: check
 	./postinstall.sh
-
-deploy-contracts: check
-	./deploy-contracts.sh
