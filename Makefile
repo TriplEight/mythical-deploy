@@ -2,7 +2,8 @@
 # Validator-manager Quick Deploy Makefile for Development and Testing
 # ============================================================================================
 
-KUBERNETES_CONTEXT = gke_test-installations-222013_europe-central2-a_david-mythical-cluster-tmp
+# KUBERNETES_CONTEXT = gke_test-installations-222013_europe-central2-a_david-mythical-cluster-tmp
+KUBERNETES_CONTEXT = gke_test-installations-222013_europe-west3-a_tellor-denis
 # rococo or wococo (don't put space at the end of the variable it will be used as is)
 CHAIN_NAMESPACE = rococo
 
@@ -25,18 +26,13 @@ kube_minikube-podman:
 		--addons ingress --addons metrics-server --addons registry --driver podman \
 		--container-runtime=containerd --memory=8g --cpus=4
 
-kube_gke_test-installations-222013_us-central1-c_david-mythical-node:
-	@gke_test-installations-222013_us-central1-c_david-mythical-node
-
 # ============================================================================================
 
 check:
 	@kubectl config use-context ${KUBERNETES_CONTEXT}
 	@kubectl --context ${KUBERNETES_CONTEXT} get nodes
 
-setup: setup_${KUBERNETES_CONTEXT}
-
-setup_gke_test-installations-222013_europe-central2-a_david-mythical-cluster-tmp:
+setup:
 	@kubectl --context ${KUBERNETES_CONTEXT} apply -f ./kube-setup -f ./kube-setup
 
 build: check build_${KUBERNETES_CONTEXT}
@@ -44,10 +40,13 @@ build: check build_${KUBERNETES_CONTEXT}
 build_minikube:
 	cd ../. && minikube image build . -t local/testnet-manager
 
-build_gke_test-installations-222013_us-central1-c_david-mythical-node:
-	cd ../. && docker image build -t local/testnet-manager:latest .
-
 # ============================================================================================
+
+ports-open:
+	# port-forwarding to local ports
+	@nohup kubectl --context ${KUBERNETES_CONTEXT} port-forward -n ${CHAIN_NAMESPACE} svc/testnet-manager 8080:80 >/dev/null 2>&1 &
+	@nohup kubectl --context ${KUBERNETES_CONTEXT} port-forward -n ${CHAIN_NAMESPACE} svc/local${CHAIN_NAMESPACE}-bootnode-0 9944:9944 >/dev/null 2>&1 &
+	@nohup kubectl --context ${KUBERNETES_CONTEXT} port-forward -n ${CHAIN_NAMESPACE} svc/${CHAIN_NAMESPACE}-mythical-collator-alice-node-0 9945:9944 >/dev/null 2>&1 &
 
 rpc:
 	@xdg-open 'https://polkadot.js.org/apps/?rpc=ws%3A%2F%2F127.0.0.1%3A9944#/explorer'
@@ -73,8 +72,9 @@ web-tasks:
 
 apply: check
 	@helmfile --file ./charts/helmfile-${CHAIN_NAMESPACE}.yaml apply
-	@kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager -n ${CHAIN_NAMESPACE}
-	@kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager-task-scheduler -n ${CHAIN_NAMESPACE} # force recreate testnet-manager pod
+	# force recreate testnet-manager pod
+	kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager -n ${CHAIN_NAMESPACE}
+	kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager-task-scheduler -n ${CHAIN_NAMESPACE} 
 
 install: build setup apply
 
@@ -90,9 +90,15 @@ log:
 
 # ============================================================================================
 
+ports-close:
+	@pkill -f -e "port-forward -n ${CHAIN_NAMESPACE}"
+
 uninstall: check
 	@helmfile --file ./charts/helmfile-${CHAIN_NAMESPACE}.yaml destroy
 	@kubectl --context ${KUBERNETES_CONTEXT} delete pvc -n ${CHAIN_NAMESPACE} --all
 
 cleanup: check
 	@kubectl --context ${KUBERNETES_CONTEXT} delete namespace ${CHAIN_NAMESPACE}
+
+postinstall: check
+	./postinstall.sh
