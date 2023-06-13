@@ -72,8 +72,9 @@ web-tasks:
 
 apply: check
 	@helmfile --file ./charts/helmfile-${CHAIN_NAMESPACE}.yaml apply
-	@kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager -n ${CHAIN_NAMESPACE}
-	@kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager-task-scheduler -n ${CHAIN_NAMESPACE} # force recreate testnet-manager pod
+	# force recreate testnet-manager pod
+	kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager -n ${CHAIN_NAMESPACE}
+	kubectl --context ${KUBERNETES_CONTEXT} delete pod  -l app.kubernetes.io/name=testnet-manager-task-scheduler -n ${CHAIN_NAMESPACE} 
 
 install: build setup apply
 
